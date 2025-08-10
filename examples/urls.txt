@@ -1,0 +1,14 @@
+# Figma URLs for batch processing
+# One URL per line, lines starting with # are ignored
+
+# Example URLs (replace with your actual Figma component URLs)
+https://www.figma.com/design/Wa0Oa4oeMTy5H2Tk32ooqb/CSM?node-id=13991-18999&m=dev
+
+# Additional URLs can be added here:
+# https://www.figma.com/design/YOUR_FILE_KEY/Your-Design?node-id=YOUR_NODE_ID
+# https://www.figma.com/design/YOUR_FILE_KEY/Your-Design?node-id=ANOTHER_NODE_ID
+
+# Tips:
+# - Make sure the URLs are accessible with your Figma token
+# - Use the 'preview' command to check components before batch generation
+# - Remove or comment out URLs that are not working
