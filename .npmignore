@@ -1,0 +1,112 @@
+# Development files
+.git
+.gitignore
+.idea
+.vscode
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+.npm
+
+# Test files
+tests/
+test/
+coverage/
+.nyc_output
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+jest.config.js
+.jest/
+
+# Source maps
+*.map
+
+# Development scripts
+scripts/
+tools/
+pre-publish-check.js
+publish-to-npm.js
+npm-publish.bat
+install-to-circleapp.bat
+install-to-circleapp.ps1
+install-local.md
+verify-installation.js
+direct-run.js
+test-mcp.ts
+
+# Documentation (optional, keep important ones)
+docs/
+*.md
+!README.md
+!README_zh.md
+!README_en.md
+!LICENSE
+
+# Configuration files
+.env
+.env.*
+.eslintrc*
+.prettierrc*
+tsconfig.json
+.editorconfig
+.npmrc
+
+# Build artifacts (keep only dist)
+src/
+*.ts
+!dist/**/*.d.ts
+
+# Examples (optional)
+examples/
+demo.ts
+demo/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+azure-pipelines.yml
+
+# Temporary files
+*.tmp
+tmp/
+temp/
+.cache/
+
+# OS generated files
+Desktop.ini
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+ehthumbs_vista.db
+
+# Editor directories
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Package manager files
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# Other
+.history/
+.husky/
+.commitlintrc*

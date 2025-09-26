@@ -6,6 +6,16 @@
 // API Classes
 export { FigmaAPI } from './src/api/FigmaAPI';
 
+// Figma Node Fetcher - Simple utility for fetching node info
+export {
+  getFigmaNodeInfo,
+  getFigmaNodesInfo,
+  parseFigmaUrl,
+  extractNodeIds,
+  isValidFigmaToken,
+  type FigmaNodeInfo
+} from './src/api/FigmaNodeFetcher';
+
 // MCP Classes (Model Context Protocol)
 export { FigmaMCPClient } from './src/mcp/FigmaMCPClient';
 export { FigmaMCPIntegration } from './src/mcp/FigmaMCPIntegration';

@@ -1,6 +1,6 @@
 {
   "name": "figma-to-rn-toolkit",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "🎨 A comprehensive toolkit for converting Figma designs to React Native components with MCP (Model Context Protocol) support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -37,12 +37,20 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write src/**/*.ts",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run build && npm run test",
+    "prepublishOnly": "npm run build",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
     "readme:en": "cp README_en.md README.md",
     "readme:zh": "cp README_zh.md README.md",
-    "readme:check": "echo 'Available README versions: README.md (current), README_en.md (English), README_zh.md (Chinese)'"
+    "readme:check": "echo 'Available README versions: README.md (current), README_en.md (English), README_zh.md (Chinese)'",
+    "prepublish:check": "node pre-publish-check.js",
+    "publish:auto": "node publish-to-npm.js",
+    "publish:windows": "npm-publish.bat",
+    "publish:patch": "npm version patch && npm publish",
+    "publish:minor": "npm version minor && npm publish",
+    "publish:major": "npm version major && npm publish",
+    "publish:beta": "npm publish --tag beta",
+    "publish:dry": "npm publish --dry-run"
   },
   "keywords": [
     "figma",

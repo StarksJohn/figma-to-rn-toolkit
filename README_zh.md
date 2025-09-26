@@ -13,7 +13,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![React Native](https://img.shields.io/badge/React%20Native-Compatible-green.svg)](https://reactnative.dev/)
 
-[GitHub](https://github.com/figma-to-rn-toolkit/figma-to-rn-toolkit) | [NPM](https://www.npmjs.com/package/figma-to-rn-toolkit) | [问题反馈](https://github.com/figma-to-rn-toolkit/figma-to-rn-toolkit/issues)
+[GitHub](https://github.com/StarksJohn/figma-to-rn-toolkit) | [NPM](https://www.npmjs.com/package/figma-to-rn-toolkit) | [问题反馈](https://github.com/StarksJohn/figma-to-rn-toolkit/issues)
 
 </div>
 
@@ -56,11 +56,54 @@ npm install --save-dev figma-to-rn-toolkit
 - **React Native**: >=0.65.0 (peerDependency)
 - **TypeScript**: >=4.0.0 (推荐)
 
+## 🆕 新功能：快速获取 Figma 节点信息
+
+### 简单直接的 API 调用
+
+如果您的 RN 项目只需要获取 Figma 节点的原始信息（而不需要生成完整的组件代码），可以使用新增的 `getFigmaNodeInfo` 函数：
+
+```javascript
+import { getFigmaNodeInfo } from 'figma-to-rn-toolkit';
+
+// 您的 Figma Token 和 URL
+const token = 'YOUR_FIGMA_TOKEN';
+const url = 'https://www.figma.com/design/ABC123/MyDesign?node-id=2%3A4';
+
+// 获取节点信息
+const nodeInfo = await getFigmaNodeInfo(token, url);
+
+// 使用返回的节点信息
+console.log('节点名称:', nodeInfo.name);
+console.log('节点类型:', nodeInfo.type);
+console.log('节点尺寸:', nodeInfo.absoluteBoundingBox);
+console.log('填充颜色:', nodeInfo.fills);
+console.log('边框样式:', nodeInfo.strokes);
+```
+
+### 如何获取 Figma URL
+
+1. 在 Figma 中选中任意元素
+2. 右键点击选中的元素
+3. 选择 **"Copy link to selection"** (复制选中内容的链接)
+4. 粘贴的 URL 即可直接使用
+
+### 返回的节点信息
+
+`getFigmaNodeInfo` 返回包含完整 Figma 节点数据的对象，包括：
+- 基本信息：`id`, `name`, `type`, `visible`
+- 尺寸位置：`absoluteBoundingBox`
+- 样式属性：`fills`, `strokes`, `effects`
+- 布局属性：`constraints`, `layoutMode`, `padding`
+- 子节点：`children` (如果存在)
+- 其他 Figma 属性
+
+详细示例请查看 `examples/get-node-info.ts`
+
 ## 🎯 快速开始
 
 ### 1. 获取 Figma Access Token
 
-前往 [Figma Settings > Personal Access Tokens](https://www.figma.com/settings/tokens) 创建新的访问令牌：
+前往 [Figma Settings > Personal Access Tokens](https://www.figma.com/settings/tokens) 创建新的访问令牌
 
 **必需权限设置：**
 - ✅ **File content** → Read
