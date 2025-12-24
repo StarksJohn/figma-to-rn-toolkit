@@ -3,6 +3,7 @@
 ## 📚 目录
 
 - [快速开始](#快速开始)
+- [🔑 NPM 自动化令牌配置（绕过 2FA）](#-npm-自动化令牌配置绕过-2fa)
 - [前期准备](#前期准备)
 - [一键发布](#一键发布)
 - [工具文件说明](#工具文件说明)
@@ -11,6 +12,127 @@
 - [版本管理策略](#版本管理策略)
 - [常见问题解决](#常见问题解决)
 - [最佳实践](#最佳实践)
+
+---
+
+## 🔑 NPM 自动化令牌配置（绕过 2FA）
+
+如果你在执行 `npm publish` 时遇到以下错误：
+```
+npm error 403 403 Forbidden - PUT https://registry.npmjs.org/figma-to-rn-toolkit - Two-factor authentication on granular access token with bypass 2fa enabled is required to publish packages.
+```
+
+这说明你需要配置一个启用了 "Bypass 2FA" 选项的 Automation Token。
+
+### 创建 Automation Token
+
+1. **访问 NPM Token 管理页面**
+   - 打开 https://www.npmjs.com/settings/你的用户名/tokens/granular-access-tokens/new
+
+2. **配置 Token 信息**
+   - **Token name**: `auto-publish`（或其他有意义的名称）
+   - **Description**: `我所有第三方库发布时使用`
+   - **✅ Bypass two-factor authentication (2FA)**: 必须勾选此选项
+
+3. **配置权限范围**
+   - **Packages and scopes**:
+     - Permissions: `Read and write`
+     - Select packages: `All packages`（或选择特定包）
+   - **Organizations**: `No access`
+   - **Expiration**: 设置过期时间（建议1年以上）
+
+4. **生成 Token**
+   - 点击 `Generate token` 按钮
+   - 复制生成的 Token（格式如：`npm_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`）
+   - ⚠️ **重要**：Token 只会显示一次，请妥善保存！
+
+### 配置 Token 到系统
+
+#### 方法一：全局配置（推荐）
+
+将 Token 配置到用户目录的 `.npmrc` 文件中，这样所有项目都可以使用：
+
+**Windows:**
+```bash
+# 文件位置: C:\Users\你的用户名\.npmrc
+
+# 添加以下内容:
+registry=https://registry.npmjs.org
+//registry.npmjs.org/:_authToken=你的Token
+```
+
+**Mac/Linux:**
+```bash
+# 文件位置: ~/.npmrc
+
+# 添加以下内容:
+registry=https://registry.npmjs.org
+//registry.npmjs.org/:_authToken=你的Token
+```
+
+#### 方法二：项目级配置
+
+在项目根目录创建 `.npmrc` 文件：
+```bash
+//registry.npmjs.org/:_authToken=你的Token
+```
+
+⚠️ **安全提醒**：如果使用项目级配置，请确保 `.npmrc` 已添加到 `.gitignore` 中！
+
+### 验证配置
+
+```bash
+# 验证登录状态
+npm whoami
+
+# 如果返回你的用户名（如：stark2018），说明配置成功
+```
+
+### Token 故障排除
+
+#### 问题：403 Forbidden 错误
+
+**可能原因及解决方案：**
+
+1. **Token 未勾选 "Bypass 2FA"**
+   - 删除旧 Token，重新创建并确保勾选 "Bypass two-factor authentication (2FA)"
+
+2. **Token 权限不足**
+   - 确保 Token 有 "Read and write" 权限
+   - 确保 Token 包含要发布的包
+
+3. **Token 已过期**
+   - 检查 Token 过期时间，必要时重新生成
+
+4. **.npmrc 配置错误**
+   - 确保 Token 格式正确：`//registry.npmjs.org/:_authToken=npm_xxxxx`
+   - 确保没有多余的空格或换行
+
+5. **使用了错误的 registry**
+   - 确保 registry 指向 `https://registry.npmjs.org`
+
+#### 问题：仍然提示需要 OTP
+
+如果配置了 Automation Token 后仍然提示需要 OTP：
+1. 确认 Token 创建时勾选了 "Bypass 2FA"
+2. 确认使用的是新创建的 Token
+3. 清除 npm 缓存：`npm cache clean --force`
+4. 重新登录：`npm logout && npm login`
+
+### 使用 Automation Token 发布
+
+配置完成后，执行发布命令时将自动使用 Token，无需输入 OTP：
+
+```bash
+# 直接发布
+npm publish
+
+# 或使用项目脚本
+npm run publish:patch   # 发布补丁版本
+npm run publish:minor   # 发布次要版本
+npm run publish:major   # 发布主要版本
+npm run publish:auto    # 一键自动发布
+```
 
 ---
 
