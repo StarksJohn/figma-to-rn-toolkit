@@ -1,0 +1,112 @@
+---
+description: "React Native design system rules for Cursor Figma plugin"
+globs: ["**/*.tsx", "**/*.ts"]
+alwaysApply: true
+---
+
+# React Native Design System Rules
+
+These rules guide the Cursor Figma plugin (implement-design, code-connect-components) to generate production-quality React Native code.
+
+## Component Structure
+
+### File Organization
+- One component per file at `src/components/<ComponentName>.tsx`
+- Shared/reusable components at `src/components/common/`
+- Screen-level components at `src/screens/`
+- Component name must be PascalCase matching filename
+
+### Component Pattern
+```tsx
+import React from 'react';
+import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+
+interface ComponentNameProps {
+  style?: ViewStyle;
+  // props derived from Figma component properties
+}
+
+const ComponentName: React.FC<ComponentNameProps> = ({ style, ...props }) => {
+  return (
+    <View style={[styles.container, style]}>
+      {/* children */}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    // styles
+  },
+});
+
+export default ComponentName;
+```
+
+## Styling Rules
+
+### ALWAYS use StyleSheet.create()
+- Never use inline styles except for dynamic values
+- Group styles by semantic meaning, not by Figma layer name
+- Use descriptive style names: `headerTitle`, `cardContainer`, not `frame1`, `rectangle2`
+
+### Layout
+- Use `flexDirection: 'column'` as default (RN default)
+- Map Figma Auto Layout to flexbox: `HORIZONTAL` -> `flexDirection: 'row'`, `VERTICAL` -> `flexDirection: 'column'`
+- Map Figma alignment: `MIN` -> `flex-start`, `CENTER` -> `center`, `MAX` -> `flex-end`, `SPACE_BETWEEN` -> `space-between`
+- Use `gap` property for spacing between items (React Native 0.71+)
+- Prefer `flex: 1` over explicit width/height for responsive layouts
+- Never use absolute positioning unless the Figma design explicitly requires overlapping elements
+
+### Dimensions
+- Convert Figma px values directly to RN numbers (no units needed)
+- For responsive designs, prefer percentage or flex over fixed dimensions
+- Use `alignSelf: 'stretch'` for full-width containers
+
+### Colors
+- Use `rgba(r, g, b, a)` format for colors with transparency
+- Use `rgb(r, g, b)` for opaque colors
+- Extract repeated colors into a `colors` constant object at file top or in a shared `theme.ts`
+
+### Typography
+- Map Figma font weights: 400 -> 'normal', 700 -> 'bold', others -> string literal ('100'-'900')
+- Map Figma text alignment: LEFT -> 'left', CENTER -> 'center', RIGHT -> 'right', JUSTIFIED -> 'justify'
+- Include `lineHeight` when specified in Figma (use px value directly)
+- Include `letterSpacing` when specified
+
+### Shadows (Cross-Platform)
+- Map Figma DROP_SHADOW to both iOS shadow properties AND Android `elevation`
+- iOS: `shadowColor`, `shadowOffset`, `shadowOpacity`, `shadowRadius`
+- Android: `elevation` (approximate from shadow radius)
+- Use `Platform.OS` switch only when shadow rendering differs significantly
+
+### Border Radius
+- Map `cornerRadius` directly to `borderRadius`
+- For individual corner radii, use `borderTopLeftRadius`, `borderTopRightRadius`, etc.
+
+### Images
+- Use `<Image source={require('./path')} />` for local assets
+- Use `<Image source={{ uri: url }} />` for remote images
+- Always include `resizeMode` prop
+- Prefer `FastImage` from `react-native-fast-image` for remote images if available in project
+
+## Component Mapping from Figma
+
+| Figma Node Type | React Native Component |
+|-----------------|----------------------|
+| FRAME / GROUP | `<View>` |
+| TEXT | `<Text>` |
+| RECTANGLE (image fill) | `<Image>` |
+| RECTANGLE (solid/gradient) | `<View>` |
+| VECTOR / BOOLEAN_OPERATION | `<Image>` (export as PNG/SVG) |
+| COMPONENT / INSTANCE | Custom component |
+| ELLIPSE | `<View>` with `borderRadius: width/2` |
+
+## What NOT to Do
+
+- Do NOT hardcode text strings; use props or i18n keys
+- Do NOT generate Figma layer IDs or internal names in output code
+- Do NOT use `position: 'absolute'` for elements inside Auto Layout frames
+- Do NOT use web CSS properties (`box-shadow`, `display: block`, etc.)
+- Do NOT generate platform-specific code without `Platform.OS` checks
+- Do NOT omit TypeScript types for props and styles

@@ -1,16 +1,18 @@
 {
   "name": "figma-to-rn-toolkit",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "🎨 A comprehensive toolkit for converting Figma designs to React Native components with MCP (Model Context Protocol) support",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "figma-to-rn": "dist/cli.js",
-    "figma-mcp": "dist/mcp-cli.js"
+    "figma-mcp": "dist/mcp-cli.js",
+    "figma-rn-setup": "dist/setup-rn-project.js"
   },
   "files": [
     "dist",
     "src",
+    ".cursor/rules/figma-design-system.mdc",
     "examples",
     "README.md",
     "README_en.md",
@@ -50,7 +52,8 @@
     "publish:minor": "npm version minor && npm publish",
     "publish:major": "npm version major && npm publish",
     "publish:beta": "npm publish --tag beta",
-    "publish:dry": "npm publish --dry-run"
+    "publish:dry": "npm publish --dry-run",
+    "setup:cursor-figma": "ts-node setup-rn-project.ts"
   },
   "keywords": [
     "figma",

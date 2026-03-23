@@ -536,9 +536,62 @@ figma-to-rn generate --token="${FIGMA_TOKEN}" --url="..."
 - Regularly update tokens
 - Don't hardcode tokens in code
 
+## Cursor Figma Plugin Integration
+
+This toolkit works with the [Cursor Figma plugin](https://cursor.com/en-US/marketplace/figma) to provide AI-powered Figma-to-React-Native conversion.
+
+### How It Works
+
+The Cursor Figma plugin has an `implement-design` skill that reads Figma design data via MCP and generates code. This toolkit provides **React Native-specific design system rules** (`.cursor/rules/figma-design-system.mdc`) that teach the plugin how to generate proper RN code -- using `StyleSheet.create()`, correct flexbox mapping, cross-platform shadows, proper component structure, etc.
+
+### Quick Setup for Any RN Project
+
+**Step 1: Install the Cursor Figma plugin** (one-time, in Cursor IDE)
+
+In Cursor Chat, type:
+```
+/add-plugin figma
+```
+
+**Step 2: Copy RN design rules to your project**
+
+```bash
+npx figma-rn-setup /path/to/your-rn-project
+```
+
+This copies:
+- `.cursor/rules/figma-design-system.mdc` (RN-specific rules for the Figma plugin)
+- `.cursorignore` (excludes `node_modules`, `Pods`, `build` etc. from indexing)
+
+**Step 3: Use in Cursor Chat**
+
+Open your RN project in Cursor, then in Chat:
+```
+implement design https://figma.com/design/ABC123/MyApp?node-id=1-2
+```
+
+The Figma plugin will read the design via MCP and generate a React Native component following the rules in `figma-design-system.mdc`.
+
+### Three Ways to Use This Toolkit
+
+| Approach | When to Use | Command |
+|----------|-------------|---------|
+| **A. Cursor Figma Plugin** (AI) | Complex designs, responsive layouts, design token extraction | `implement design <figma-url>` in Cursor Chat |
+| **B. CLI** (Deterministic) | Batch processing, CI/CD, reproducible output | `npx figma-to-rn generate -u <url> -o ./src/components` |
+| **C. Programmatic API** | Custom pipelines, build tool integration | `import { FigmaToReactNative } from 'figma-to-rn-toolkit'` |
+
+**Approach A** leverages the Cursor AI agent to interpret design intent and produce idiomatic RN code. **Approach B** uses the Figma REST API directly for deterministic output. **Approach C** gives full programmatic control for custom build pipelines.
+
 ## 📝 Changelog
 
-### v1.2.0 (Latest)
+### v1.5.0
+- Added Cursor Figma plugin integration with RN design system rules
+- Added `figma-rn-setup` CLI for one-command project setup
+- Fixed `package.json` main/types pointing to wrong entry
+- Fixed `tsconfig.json` missing `mcp-cli.ts` in includes
+- Added `.cursorignore` for Codebase Indexing optimization
+
+### v1.2.0
 - ✨ Added MCP (Model Context Protocol) real-time access support
 - 🔧 Improved Windows command-line compatibility
 - 📋 Complete TypeScript type definitions

@@ -21,7 +21,9 @@
   "include": [
     "src/**/*",
     "cli.ts",
-    "index.ts"
+    "mcp-cli.ts",
+    "index.ts",
+    "setup-rn-project.ts"
   ],
   "exclude": [
     "node_modules",

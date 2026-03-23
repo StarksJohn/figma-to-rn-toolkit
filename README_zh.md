@@ -367,6 +367,255 @@ class FigmaMCPIntegration {
 }
 ```
 
+## 🔌 在 React Native 项目中结合 Cursor Figma 插件使用
+
+本节介绍如何在你的 React Native 项目中，将 `figma-to-rn-toolkit` 与 [Cursor Figma 插件](https://cursor.com) 结合使用，实现从 Figma 设计稿到生产级 RN 组件的高效转换。
+
+### 前置条件
+
+| 条件 | 说明 |
+|------|------|
+| Cursor IDE | 已安装 [Cursor](https://cursor.com) 编辑器 |
+| Figma 插件 | 在 Cursor 中安装 **Figma** 插件（Settings > Plugins > 搜索 Figma） |
+| Figma MCP 认证 | 首次使用需在 Cursor Chat 中执行 MCP 认证（见下文） |
+| Figma Token | 拥有 Figma Personal Access Token（用于 CLI/API 方式） |
+| figma-to-rn-toolkit | 已在你的 RN 项目中安装本工具包 |
+
+### Step 1: 在 RN 项目中安装 figma-to-rn-toolkit
+
+```bash
+# 作为开发依赖安装
+npm install --save-dev figma-to-rn-toolkit
+
+# 或全局安装（推荐，可在多个项目间共享 CLI）
+npm install -g figma-to-rn-toolkit
+```
+
+在项目根目录创建 `.env` 文件：
+
+```bash
+FIGMA_TOKEN=your_figma_personal_access_token_here
+```
+
+### Step 2: 启用 Cursor Figma 插件并完成认证
+
+1. 打开 Cursor IDE，进入 **Settings > Plugins**
+2. 搜索 **Figma** 并安装插件（如已安装则跳过）
+3. 安装后你将获得三个 Skill 和一个 Figma MCP Server：
+
+| 能力 | 说明 |
+|------|------|
+| **implement-design** | 将 Figma 设计翻译为生产级代码，1:1 视觉还原 |
+| **code-connect-components** | 将 Figma 组件与代码组件建立双向映射 |
+| **create-design-system-rules** | 为项目生成自定义设计系统规则 |
+| **Figma MCP Server** | 提供 `get_design_context`、`get_screenshot`、`get_metadata` 等 MCP 工具 |
+
+4. **认证 Figma MCP Server**：在 Cursor Chat 中发送以下内容触发认证流程：
+
+```
+请连接 Figma MCP 服务器
+```
+
+Cursor 会自动调用 `mcp_auth` 工具，弹出 Figma OAuth 授权页面，点击允许即可。认证成功后，后续所有 Figma MCP 工具即可正常使用。
+
+### Step 3: 三种使用工作流
+
+根据你的场景选择最合适的工作流：
+
+---
+
+#### 工作流 A: implement-design — 从 Figma URL 直接生成 RN 组件（推荐）
+
+**适用场景**: 拿到设计师的 Figma URL，需要快速实现为 RN 组件。
+
+**操作步骤**：
+
+1. 从 Figma 中复制目标组件的链接，格式如：
+   ```
+   https://www.figma.com/design/FILE_KEY/FileName?node-id=42-15
+   ```
+
+2. 在 Cursor Chat 中输入：
+   ```
+   请根据这个 Figma 设计实现 React Native 组件：
+   https://www.figma.com/design/FILE_KEY/FileName?node-id=42-15
+
+   要求：
+   - 使用 TypeScript
+   - 使用 StyleSheet.create()
+   - 组件放在 src/components/ 目录
+   - 组件名为 PaymentCard
+   ```
+
+3. Cursor 会自动执行以下流程：
+   - 调用 `get_design_context` 获取设计数据（布局、颜色、字体、间距等）
+   - 调用 `get_screenshot` 获取视觉参考截图
+   - 下载设计中的图片/图标资源
+   - 将 Figma 输出翻译为 RN 组件代码（StyleSheet + TypeScript）
+   - 对照截图进行视觉验证
+
+4. 生成的组件会直接写入你的项目目录中。
+
+**与 figma-to-rn-toolkit 结合使用**：
+
+你也可以同时利用 toolkit 的 API 来获取原始节点数据，做更精细的样式转换：
+
+```typescript
+import { getFigmaNodeInfo, figmaNodeToRNStyles } from 'figma-to-rn-toolkit';
+
+const nodeInfo = await getFigmaNodeInfo(process.env.FIGMA_TOKEN!, figmaUrl);
+const rnStyles = figmaNodeToRNStyles(nodeInfo);
+```
+
+---
+
+#### 工作流 B: code-connect-components — 将已有 RN 组件与 Figma 设计绑定
+
+**适用场景**: 项目中已有 RN 组件库，需要与 Figma 设计系统建立双向关联。
+
+> 注意: Code Connect 功能需要 Figma Organization 或 Enterprise 计划，且组件必须已发布到 Team Library。
+
+**操作步骤**：
+
+1. 在 Cursor Chat 中输入：
+   ```
+   请将这个 Figma 组件与我的代码关联：
+   https://www.figma.com/design/FILE_KEY/DesignSystem?node-id=10-50
+   ```
+
+2. Cursor 会自动：
+   - 调用 `get_code_connect_suggestions` 获取未映射的 Figma 组件列表
+   - 扫描你的代码库（`src/components/` 等目录），匹配对应的 RN 组件
+   - 展示匹配结果供你确认
+   - 调用 `send_code_connect_mappings` 创建映射关系
+
+3. 映射建立后，设计师在 Figma 中查看组件时可直接看到对应的代码实现路径。
+
+---
+
+#### 工作流 C: create-design-system-rules — 为项目生成设计系统规则
+
+**适用场景**: 希望 AI 在后续所有 Figma 实现任务中自动遵循项目约定。
+
+**操作步骤**：
+
+1. 在 Cursor Chat 中输入：
+   ```
+   请为我的 React Native 项目创建设计系统规则
+   ```
+
+2. Cursor 会自动：
+   - 调用 `create_design_system_rules` 获取规则模板
+   - 分析项目代码结构、样式方案、组件约定
+   - 生成 `.cursor/rules/figma-design-system.mdc` 规则文件
+
+3. 规则文件内容示例：
+
+```markdown
+---
+description: "Figma to RN design system rules"
+globs: "src/components/**"
+alwaysApply: false
+---
+
+## Component Organization
+- UI components are in `src/components/`
+- Use StyleSheet.create() for all styles
+- Follow PascalCase naming convention
+
+## Figma Implementation Flow
+1. Run get_design_context for the node
+2. Run get_screenshot for visual reference
+3. Translate Figma output to React Native with StyleSheet
+4. Reuse existing components when possible
+5. Validate against screenshot before completing
+
+## Style Conventions
+- IMPORTANT: Never hardcode colors, use project theme tokens
+- IMPORTANT: Use platform-aware dimensions (PixelRatio if needed)
+- Spacing follows the 4px base scale
+```
+
+4. 后续所有 Figma 实现任务都会自动遵循这些规则，保证全项目一致性。
+
+### 完整的推荐工作流程
+
+以下是在一个新 React Native 项目中从零开始使用的推荐步骤：
+
+```
+Step 1: 安装 figma-to-rn-toolkit
+         npm install --save-dev figma-to-rn-toolkit
+
+Step 2: 在 Cursor 中安装并认证 Figma 插件
+
+Step 3: 生成设计系统规则（工作流 C）
+         => 生成 .cursor/rules/figma-design-system.mdc
+
+Step 4: 开始实现设计稿（工作流 A）
+         => 在 Cursor Chat 中粘贴 Figma URL，AI 自动生成 RN 组件
+
+Step 5: 建立组件关联（工作流 B，可选）
+         => 将已有组件与 Figma 设计绑定
+
+Step 6: 迭代优化
+         => 利用 toolkit API 做精细样式调整
+         => 更新设计系统规则以匹配团队约定
+```
+
+### CLI 方式与 Cursor 插件方式对比
+
+| 维度 | CLI / API 方式 | Cursor Figma 插件方式 |
+|------|---------------|---------------------|
+| **交互方式** | 命令行 / 代码调用 | Cursor Chat 自然语言对话 |
+| **适合场景** | CI/CD 批量生成、脚本自动化 | 日常开发、交互式组件实现 |
+| **设计还原度** | 基于解析规则的结构化转换 | AI 驱动 + 截图视觉验证，更高精度 |
+| **MCP 工具** | 内置 SSE 客户端（`figma-mcp`） | Figma 官方 MCP（`get_design_context` 等） |
+| **结合方式** | 单独使用或导出原始数据供 AI 消费 | 直接在 Cursor 中使用 AI 生成组件 |
+
+**最佳实践**: 日常开发推荐使用 Cursor Figma 插件（交互式、高保真），CI/CD 或批量任务使用 CLI 方式（可自动化、可脚本化）。两者可以互补，例如先用插件生成基础组件，再用 toolkit API 做批量样式微调。
+
+### 常见问题
+
+#### Q: Figma MCP 工具不可用？
+
+确保已完成以下步骤：
+1. Cursor 中已安装 Figma 插件
+2. 已在 Chat 中触发过 MCP 认证（发送"连接 Figma MCP"）
+3. Figma OAuth 弹窗中已点击"允许"
+4. 如仍不可用，尝试重启 Cursor
+
+#### Q: implement-design 生成的代码是 React + Tailwind 而不是 React Native？
+
+Figma MCP 默认输出 React + Tailwind 的中间表示。在 Cursor Chat 中明确指定你的技术栈：
+
+```
+请用 React Native + StyleSheet 实现这个设计（不要使用 Tailwind）：
+https://www.figma.com/design/...
+```
+
+或者先通过**工作流 C**生成设计系统规则，规则中会明确 React Native + StyleSheet 约定，后续所有实现任务自动遵循。
+
+#### Q: 如何在没有 Cursor 的环境中使用？
+
+直接使用 figma-to-rn-toolkit 的 CLI 或 API 即可，不依赖 Cursor：
+
+```bash
+# CLI 方式
+figma-to-rn generate --token="$FIGMA_TOKEN" --url="FIGMA_URL" --output="./components"
+
+# API 方式
+import { getFigmaNodeInfo } from 'figma-to-rn-toolkit';
+const nodeInfo = await getFigmaNodeInfo(token, url);
+```
+
+#### Q: Code Connect 映射失败？
+
+检查以下条件：
+- Figma 计划需为 Organization 或 Enterprise
+- 组件必须已发布到 Team Library（右键 > Publish to library）
+- Figma URL 中必须包含 `node-id` 参数
+- 你对 Figma 文件有编辑权限
+
 ## 🚨 故障排除
 
 ### 常见问题
