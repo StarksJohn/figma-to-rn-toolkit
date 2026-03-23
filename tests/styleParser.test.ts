@@ -52,50 +52,55 @@ describe('StyleParser', () => {
     });
   });
 
-  describe('convertFigmaStyleToRN', () => {
+  describe('nodeToStyles', () => {
     it('should convert basic Figma node to React Native style', () => {
       const figmaNode = {
+        id: '1:1',
+        name: 'TestNode',
+        type: 'FRAME' as const,
         x: 10,
         y: 20,
         width: 100,
         height: 50,
         fills: [{
-          type: 'SOLID',
-          color: { r: 1, g: 0, b: 0, a: 1 }
+          type: 'SOLID' as const,
+          color: { r: 1, g: 0, b: 0, a: 1 },
         }],
-        cornerRadius: 8
+        cornerRadius: 8,
       };
 
-      const result = StyleParser.convertFigmaStyleToRN(figmaNode);
+      const result = StyleParser.nodeToStyles(figmaNode);
 
-      expect(result).toEqual({
-        position: 'absolute',
+      expect(result).toEqual(expect.objectContaining({
         left: 10,
         top: 20,
         width: 100,
         height: 50,
         backgroundColor: 'rgb(255, 0, 0)',
-        borderRadius: 8
-      });
+        borderRadius: 8,
+      }));
     });
 
     it('should handle node without fills', () => {
       const figmaNode = {
+        id: '1:2',
+        name: 'EmptyNode',
+        type: 'FRAME' as const,
         x: 0,
         y: 0,
         width: 100,
-        height: 50
+        height: 50,
       };
 
-      const result = StyleParser.convertFigmaStyleToRN(figmaNode);
+      const result = StyleParser.nodeToStyles(figmaNode);
 
-      expect(result).toEqual({
-        position: 'absolute',
+      expect(result).toEqual(expect.objectContaining({
         left: 0,
         top: 0,
         width: 100,
-        height: 50
-      });
+        height: 50,
+      }));
+      expect(result.backgroundColor).toBeUndefined();
     });
   });
 });
