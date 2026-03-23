@@ -46,6 +46,7 @@ pids
 # Logs
 logs
 *.log
+release.log
 
 # Temporary folders
 tmp/
